@@ -1,0 +1,84 @@
+/**
+ *
+ * {{properCase name }}
+ *
+ */
+
+{{#if memo}}
+import React, { memo, useEffect } from 'react';
+{{else}}
+import React, { useEffect } from 'react';
+{{/if}}
+import {createStructuredSelector} from "reselect";
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+{{#if wantHeaders}}
+import { Helmet } from 'react-helmet';
+{{/if}}
+{{#if wantMessages}}
+import { FormattedMessage } from 'react-intl';
+{{/if}}
+import { compose } from 'redux';
+{{#if wantMessages}}
+import messages from './messages';
+{{/if}}
+import LoadingIndicator from "../../../components/LoadingIndicator";
+import saga,{SAGA_KEY} from '../../../sagas/saga';
+import {useInjectSaga} from "../../../utils/injectSaga";
+
+export function {{ properCase name }}(props) {
+    useInjectSaga({key: SAGA_KEY, saga: saga});
+    useEffect(() => {
+        props.getData()
+    }, []);
+
+    const {loading} = props;
+
+    if (loading) {
+        return <LoadingIndicator />;
+    }
+
+
+return (
+    <div>
+    {{#if wantHeaders}}
+      <Helmet>
+        <title>{{properCase name}}</title>
+        <meta name="description" content="Description of {{properCase name}}" />
+      </Helmet>
+    {{/if}}
+    {{#if wantMessages}}
+      <FormattedMessage {...messages.header} />
+    {{/if}}
+    </div>
+  );
+}
+
+{{ properCase name }}.propTypes = {
+    dispatch: PropTypes.func.isRequired,
+    loading: PropTypes.bool,
+    error: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+};
+
+const mapStateToProps = createStructuredSelector({
+    loading: makeSelectLoading(),
+    error: makeSelectError(),
+});
+
+
+function mapDispatchToProps(dispatch) {
+    return {
+        getData: (data) => {
+         dispatch(getData(data));
+        },
+    };
+}
+
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
+
+export default compose(
+  withConnect,
+{{#if memo}}
+  memo,
+{{/if}}
+)({{ properCase name }});
